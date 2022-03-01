@@ -8,8 +8,11 @@ To use:
 
 3) Edit hard coded paths in the brainageR file based on your system: 
       brainageR_dir=/Users/alex/brainageR
+      
       spm_dir=/Users/alex/Downloads/spm12/
+      
       matlab_path=/Applications/MATLAB_R2021a.app/bin/matlab
+      
       FSLDIR=/usr/local/fsl/
   
 
