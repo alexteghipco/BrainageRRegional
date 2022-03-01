@@ -1,0 +1,109 @@
+#!/bin/sh
+## brainageR software, global wrapper script
+## James Cole, University College London james.cole@ucl.ac.uk
+## software version 2.1 Oct 2020
+## Edited by Alex Teghipco 2/28/22 -- see usage; added an optional mask argument that will constrain predictions to those voxels that have values > 0 within some image (i.e., mask) file that has the same properties as the templates. Please make sure voxel identities in mask and spm processing output (or templates) match. This option works by constraining the projection matrix from brainageR (i.e., coefficients from PCA) to only those voxels you are interested in. BrainageR projects your new subject into the PCA space that embeds "similarities" between subgroups of subjects. This projection is based on how close these subgroups of subjects are in their whole brain GM, WM, and CSF maps. By using the mask option, you are projecting your new subject into this "group" space using only a subset of voxels.
+ but only based on how similar ROIs
+
+usage() {
+    cat <<EOF
+
+brainageR software version 2.1 Oct 2020
+
+Required arguments: 
+	-f: input Nifti file
+	-o: output csv filename
+
+Optional arguments:
+	-d: debug mode - turns off clean-up
+	-h: displays this help message
+    -m: mask that determines subset of voxels to predict age from (make sure it is resliced to match spm output/templates)
+    
+For example:
+brainageR -f subj01_T1.nii -o subj01_brain_predicted.age.csv
+
+Dependencies:
+R packages: kernlab, RNifti, stringr
+SPM (MATLAB)
+FSL (for slicesdir)
+
+EOF
+    exit 1
+}
+
+############################################################################
+
+while getopts ":f:o:dhm:" opt; do
+    case "${opt}" in
+        f)  	input_file=${OPTARG} ;;
+        o)	output_filename=${OPTARG} ;;
+        d)	debug_mode=1 ;;
+        m)  mask_filename=${OPTARG} ;; # -m maskfilepath is an optional input argument -- A.T.
+        h|*)    usage ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ -z "${input_file}" ] || [ -z "${output_filename}" ]; then
+    usage
+fi
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+	full_path_file=`greadlink -f $input_file`
+else
+	full_path_file=`readlink -f $input_file`
+fi
+file_name=`basename -s .nii $full_path_file`
+full_path=`echo $full_path_file | sed -e "s@${file_name}.nii@@"`
+echo $full_path
+## check files are uncompressed NIFTI fortmat
+if [[ $full_path_file != *.nii ]]; then usage; fi
+## check software environment and attempt to load using module
+## CONFIGURE FOR YOUR LOCAL SYSTEM
+for software in R matlab fsl; do
+	software_check=`type $software | grep -o bin`
+	if [ ! $software_check == "bin" ]; then module load $software; fi
+	software_check2=`type $software | grep -o bin`
+	if [ ! $software_check2 == "bin" ]; then echo $software not found; exit 1; fi
+done
+## set software directories for your local system
+brainageR_dir=/Users/alex/brainageR
+spm_dir=/Users/alex/Downloads/spm12/
+matlab_path=/Applications/MATLAB_R2021a.app/bin/matlab
+FSLDIR=/usr/local/fsl/
+## run brainageR analysis
+### SPM12 segmentation and normalisation
+
+# Test if spm files already exist. If they do, do not re-run spm -- A.T.
+if [ -f "${full_path}/smwc1${file_name}.nii" ] && [ -f "${full_path}/smwc2${file_name}.nii" ] && [ -f "${full_path}/smwc3${file_name}.nii" ]; then
+    echo SPM files already exist...using existing files...
+else
+    cmd="$matlab_path -nosplash -nodesktop -r \"addpath(['$brainageR_dir','/software/']);spm_preprocess_brainageR('$full_path_file',['$brainageR_dir','/software/templates/'], '$spm_dir');exit\""
+    eval ${cmd}
+fi
+### check that the pre-processing has completed
+if [ ! -f "${full_path}/smwc1${file_name}.nii" ]; then
+	echo "Processed grey matter file not found: SPM12 pre-processing probably failed"
+	exit 1
+fi
+echo ${full_path}/smwc1${file_name}.nii > /tmp/smwc1${file_name}.txt
+echo ${full_path}/smwc2${file_name}.nii > /tmp/smwc2${file_name}.txt
+echo ${full_path}/smwc3${file_name}.nii > /tmp/smwc3${file_name}.txt
+### generate QC images and html file
+bash "$brainageR_dir"/software/slicesdir.brainageR -n ${full_path}/${file_name}.nii ${full_path}/[c,s]*[1,2,3]*${file_name}.nii
+### generate predictions (added 7th mask filename argument -- A.T. (Btw, if no mask argument is passed in, the R script will function as stock brainageR)
+if [ -z "$mask_filename" ]; then
+Rscript "$brainageR_dir"/software/predict_new_data_gm_wm_csf.R "${brainageR_dir}" /tmp/smwc1${file_name}.txt /tmp/smwc2${file_name}.txt /tmp/smwc3${file_name}.txt "${brainageR_dir}"/software/GPR_model_gm_wm_csf.RData $output_filename
+else
+Rscript "$brainageR_dir"/software/predict_new_data_gm_wm_csf.R "${brainageR_dir}" /tmp/smwc1${file_name}.txt /tmp/smwc2${file_name}.txt /tmp/smwc3${file_name}.txt "${brainageR_dir}"/software/GPR_model_gm_wm_csf.RData $output_filename $mask_filename
+fi
+
+### clean up
+if [ -z $debug_mode ]; then
+	if [ -f "${full_path}/c1${file_name}.nii" ]; then
+		for img in c1 c2 c3 rc1 rc2 rc3 u_rc1 smwc1 smwc2 smwc3; do
+			rm ${full_path}/${img}${file_name}.nii
+		done
+	fi
+	rm ${full_path}/${file_name}*seg8.mat
+fi
