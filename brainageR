@@ -17,7 +17,7 @@ Required arguments:
 Optional arguments:
 	-d: debug mode - turns off clean-up
 	-h: displays this help message
-    -m: mask that determines subset of voxels to predict age from (make sure it is resliced to match spm output/templates)
+        -m: mask that determines subset of voxels to predict age from (make sure it is resampled to match spm output/templates)
     
 For example:
 brainageR -f subj01_T1.nii -o subj01_brain_predicted.age.csv
