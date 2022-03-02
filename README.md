@@ -1,5 +1,5 @@
 # BrainageRRegional
-Core brainageR scripts lightly edited to make predictions based on regional GM, WM, and CSF. Also edited so that if SPM preprocessing files already exist, the script does not re-run SPM. These edited scripts may help you if you would like to make brain age predictions using the brainageR classifier, but also to force it to use only information within some region.
+Core brainageR scripts lightly edited to make predictions based on regional GM, WM, and CSF. Also edited so that if SPM preprocessing files already exist, the script does not re-run SPM. These edited scripts may help you if you would like to make brain age predictions using the brainageR model, but also to force it to use only information within some region.
 
 To use: 
 1) Please download brainageR first and follow installation instructions at: https://github.com/james-cole/brainageR
