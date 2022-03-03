@@ -3,7 +3,6 @@
 ## James Cole, University College London james.cole@ucl.ac.uk
 ## software version 2.1 Oct 2020
 ## Edited by Alex Teghipco 2/28/22 -- see usage; added an optional mask argument that will constrain predictions to those voxels that have values > 0 within some image (i.e., mask) file that has the same properties as the templates. Please make sure voxel identities in mask and spm processing output (or templates) match. This option works by constraining the projection matrix from brainageR (i.e., coefficients from PCA) to only those voxels you are interested in. BrainageR projects your new subject into the PCA space that embeds "similarities" between subgroups of subjects. This projection is based on how close these subgroups of subjects are in their whole brain GM, WM, and CSF maps. By using the mask option, you are projecting your new subject into this "group" space using only a subset of voxels.
- but only based on how similar ROIs
 
 usage() {
     cat <<EOF
