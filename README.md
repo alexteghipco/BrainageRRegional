@@ -1,5 +1,5 @@
 # BrainageRRegional
-Core brainageR scripts lightly edited to make predictions based on regional GM, WM, and CSF. Also edited so that if SPM preprocessing files already exist, the script does not re-run SPM. These edited scripts may help you if you would like to make brain age predictions using the brainageR model, but also to force it to use only information within some region.
+Core brainageR scripts lightly edited to make predictions based on regional GM, WM, and CSF. Also edited so that if SPM preprocessing files already exist, the script does not re-run SPM. Additional edits include checking for compressed and expanded versions of the input file in the case that it does not exist, as well as automatic expansion of compressed .nii.gz files. These edited scripts may help you if you would like to make brain age predictions using the brainageR model, but also to force it to use only information within some region.
 
 To use: 
 1) Please download brainageR first and follow installation instructions at: https://github.com/james-cole/brainageR
@@ -15,6 +15,7 @@ To use:
       
       FSLDIR=/usr/local/fsl/
   
+Misc. installation note: I did not want to properly edit any of the brainAgeR code, but if running on linux, you may end up having to change code around if statements from "[[" to "[" and "==" to "=". For example, "if [[ "$OSTYPE" == "darwin"* ]]; then" becomes "if [ "$OSTYPE" = "darwin"* ]; then". This solves errors that look like, "[[: not found".
 
 The new brainageR file will behave like stock brainageR unless you pass along an optional input argument, "-m", followed by a filepath to a mask (see usage/help). If you pass along a mask, your new participant will be projected into "group" pca space using only relationships between voxels in the mask. 
 
