@@ -68,7 +68,7 @@ fi
 
 # if .gz, then unzip -- A.T.
 ext=`echo -n $input_file | tail -c 2`
-echo $ext
+
 if [ "$ext" = "gz" ]; then 
 	gunzip $input_file
 	input_file=`echo ${input_file%.gz}`
@@ -81,7 +81,7 @@ fi
 
 file_name=`basename -s .nii $full_path_file`
 full_path=`echo $full_path_file | sed -e "s@${file_name}.nii@@"`
-echo $full_path
+
 ## check files are uncompressed NIFTI fortmat
 if [[ $full_path_file != *.nii ]]; then usage; fi
 ## check software environment and attempt to load using module
