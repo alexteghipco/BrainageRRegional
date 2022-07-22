@@ -28,7 +28,7 @@ Well, the brainageR pipeline initially took an n x p matrix of n subjects and p 
 Here is a schematic of this pipeline. A new participant (1) is porojected into component space using coefficients or whole brain structural connectivity patterns defined in the group (2). The scores are like coordinates that group together participants. For example, some groups of participants score very highly on a certain whole brain structural pattern while others don't, reflecting the fact that this pattern is absent in some of them. The GPR model is trained to see where a participant is in this space to make a prediction about their age--e.g., if the particpant scores highly on pattern in PC1 but poorly on pattern in PC2, may be they are older?
 
 <p align="center">
-  <kbd><img width="680" height="400" src="https://i.imgur.com/v9jBkws.png"/></kbd>
+  <kbd><img width="640" height="360" src="https://i.imgur.com/v9jBkws.png"/></kbd>
 </p>
 
 If you pass along a mask to brainageRRegional, we constrain the input data and the projection matrix (i.e., coefficients) to only those voxels that are inside the mask. In other words, we position the new participant in component space (which is represented by whole brain structural patterns) using information only within some portion of the brain. We then pass the participants' position in this space to the gaussian process model, just as before, to get our brain age prediction. 
@@ -36,7 +36,7 @@ If you pass along a mask to brainageRRegional, we constrain the input data and t
 This would amount to altering our schematic from above like this (e.g., if we are interested in making a brain age prediction based on visual cortex). To make sure the figs display correctly in github, make sure you have clicked into the readme page and are not on the main page of the repository.
 
 <p align="center">
-  <kbd><img width="680" height="400" src="https://i.imgur.com/xqbQuTz.png"/></kbd>
+  <kbd><img width="640" height="360" src="https://i.imgur.com/xqbQuTz.png"/></kbd>
 </p>
 
 Constraining the projection matrix allows us to interrogate which brain areas are important for predicting age with one important caveat--we are scoring participants on whole brain structural patterns using only some region of the brain. This is a bit like saying, "what would this participants' age prediction be if their whole-brain structral patterns looked like the patterns we see in this region?" As such, a fruitful approach may be to test the importance of a brain region by using the entire brain except that region to make an age predictions. Ideally, however, we would make regional predictions of age by defining the component space over the region we are interested in, and re-training our model on that space (or maybe training a model on the region without pca). 
@@ -44,13 +44,13 @@ Constraining the projection matrix allows us to interrogate which brain areas ar
 Using the regional prediction approach (not whole brain minus region as suggested above), it seems that the right hemisphere is relatively more important for predicting age
 
 <p align="center">
-  <kbd><img width="680" height="400" src="https://i.imgur.com/SvZ9e3z.png"/></kbd>
+  <kbd><img width="1200" height="300" src="https://i.imgur.com/SvZ9e3z.png"/></kbd>
 </p>
 
 But most important appears to be left premotor/motor cortex and SFG
 
 <p align="center">
-  <kbd><img width="680" height="400" src="https://i.imgur.com/HfbSIj6.png"/></kbd>
+  <kbd><img width="900" height="420" src="https://i.imgur.com/HfbSIj6.png"/></kbd>
 </p>
 
 Send me comments/questions at:
